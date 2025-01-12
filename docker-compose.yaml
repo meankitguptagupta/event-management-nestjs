@@ -1,0 +1,44 @@
+services:
+  event_management:
+    container_name: event_management
+    ports:
+      - 3000:3000
+    volumes:
+      - ./code:/home/code
+    image: node22
+    tty: true
+    restart: "no"
+    command: ["npm", "run", "start:dev"]
+    networks:
+      - app-network
+    depends_on:
+      - mysql  # Ensure MySQL starts before event_management
+    
+  mysql:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_USER: development
+      MYSQL_ROOT_PASSWORD: development
+      MYSQL_PASSWORD: development
+      MYSQL_DATABASE: events
+    networks:
+      - app-network
+    volumes:
+      - ./mysql:/var/lib/mysql # Persist MySQL data in a Docker volume
+
+  adminer:
+    image: adminer
+    restart: "no"
+    environment:
+      - ADMINER_DEFAULT_DB_DRIVER=mysql
+    ports:
+      - 8080:8080
+    depends_on:
+      - mysql  # Ensures Adminer starts after MySQL
+    networks:
+      - app-network
+
+networks:
+  app-network:  # Custom network for communication between services
+    driver: bridge
