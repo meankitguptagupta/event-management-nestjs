@@ -1,0 +1,35 @@
+[
+    {
+        "id": "email",
+        "label": "Email",
+        "type": "text",
+        "placeholder": "Enter your email",
+        "value": "test@example.com",
+        "validations": [
+            {
+                "required": true,
+                "min": 1,
+                "max": 155,
+                "email": true
+            }
+        ],
+        "formGroupClass": "mb-3 col-sm-12",
+        "labelClass": "text-sm fw-semibold",
+        "inputClass": "text-sm bg-light form-control-sm border-0"
+    },
+    {
+        "id": "password",
+        "label": "Password",
+        "type": "password",
+        "placeholder": "Enter your password",
+        "value": "password",
+        "validations": [
+            {
+                "required": true
+            }
+        ],
+        "formGroupClass": "mb-3 col-sm-12",
+        "labelClass": "text-sm fw-semibold",
+        "inputClass": "text-sm bg-light form-control-sm border-0"
+    }
+]

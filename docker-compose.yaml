@@ -4,7 +4,7 @@ services:
     ports:
       - 3000:3000
     volumes:
-      - ./code:/home/code
+      - ./backend:/home/code
     image: node22
     tty: true
     restart: "no"
@@ -13,6 +13,17 @@ services:
       - app-network
     depends_on:
       - mysql  # Ensure MySQL starts before event_management
+
+  event_management_frontend:
+    container_name: event_management_frontend
+    ports:
+      - 3001:3000
+    volumes:
+      - ./frontend:/home/code
+    image: node22
+    tty: true
+    restart: "no"
+    command: ["yarn", "run", "start"]
     
   mysql:
     image: mysql

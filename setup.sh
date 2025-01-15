@@ -6,4 +6,7 @@ docker build -t node22 . --no-cache
 
 # Use docker-compose run to create a temporary container to install dependencies
 echo "Installing dependencies inside the container..."
-# docker compose run --rm event_management yarn install
+docker compose run --rm event_management yarn install
+
+echo "Installing dependencies inside frontend the container..."
+docker compose run --rm event_management_frontend yarn install

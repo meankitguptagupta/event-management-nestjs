@@ -1,0 +1,85 @@
+[
+    {
+        "id": "name",
+        "label": "Title",
+        "type": "text",
+        "placeholder": "Enter Event Title",
+        "value": "",
+        "validations": [
+            {
+                "required": true,
+                "min": 1,
+                "max": 155
+            }
+        ],
+        "formGroupClass": "mb-3 col-sm-12",
+        "labelClass": "text-sm fw-semibold",
+        "inputClass": "text-sm bg-light form-control-sm border-0"
+    },
+    {
+        "id": "eventTimestamp",
+        "label": "Event's Date/Time",
+        "type": "calendar",
+        "placeholder": "Enter Event Date/Time",
+        "value": "",
+        "validations": [
+            {
+                "required": true
+            }
+        ],
+        "formGroupClass": "mb-3 col-sm-12",
+        "labelClass": "text-sm fw-semibold",
+        "inputClass": "text-sm bg-light form-control-sm border-0"
+    },
+    {
+        "id": "isRecurring",
+        "label": "Is Recurring Event",
+        "type": "radio",
+        "value": "0",
+        "options": [{
+            "value": "1",
+            "label": "Yes"
+        }, {
+            "value": "0",
+            "label": "No"
+        }],
+        "validations": [
+            {
+                "required": true
+            }
+        ],
+        "formGroupClass": "mb-3 col-sm-12 d-flex justify-content-between",
+        "labelClass": "text-sm fw-semibold",
+        "inputClass": "text-sm bg-light form-control-sm border-0"
+    },
+    {
+        "id": "recurrenceType",
+        "label": "Recurrence Type",
+        "type": "checkbox",
+        "value": "",
+        "options": ["WEEKLY"],
+        "formGroupClass": "mb-3 col-sm-12 d-flex justify-content-between",
+        "labelClass": "text-sm fw-semibold",
+        "inputClass": "text-sm bg-light form-control-sm border-0",
+        "observe": {
+            "condition": {
+                "fieldId": "isRecurring",
+                "value": "1"
+            }
+        }
+    }, {
+        "id": "recurrenceCount",
+        "label": "Recurrence Count",
+        "type": "number",
+        "value": "0",
+        "formGroupClass": "mb-3 col-sm-12 d-flex justify-content-between",
+        "labelClass": "text-sm fw-semibold",
+        "inputClass": "text-sm bg-light form-control-sm border-0",
+        "observe": {
+            "condition": {
+                "fieldId": "isRecurring",
+                "value": "1"
+            }
+        }
+    }
+]
