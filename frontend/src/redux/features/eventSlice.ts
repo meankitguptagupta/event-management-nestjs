@@ -8,7 +8,7 @@ interface EventState {
     count: number | null;
     loading: boolean;
     error: string | null;
-    events: IEvent[] | [],
+    events: IEvent[],
     selectedEvent: IEventDetail | null
 }
 
