@@ -1,8 +1,7 @@
 export const entityMapping = {
     USER: 'user',
     EVENT: 'event',
-    TAG: 'tag',
-    ATTENDEE: 'attendee'
+    TAG: 'tag'
 };
 
 export type EntityCollection = keyof typeof entityMapping;

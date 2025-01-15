@@ -34,7 +34,7 @@ export class UserEntity extends BaseEntity {
   toJSON(): Omit<this, 'deletedAt' | 'softDelete' | 'toJSON'> {
     const { deletedAt, softDelete, password, toJSON, ...rest } = this as any;
     return rest;
-  }
+  } 
 
   @BeforeInsert()
   @BeforeUpdate()

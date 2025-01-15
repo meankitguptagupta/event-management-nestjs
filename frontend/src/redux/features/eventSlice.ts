@@ -2,7 +2,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axiosInstance from '../../api/axios';
 import { RootState } from '../store';
-import { ICreateEvent, IEvent, IEventDetail } from '../../types/event.interface';
+import { ICreateEvent, IEvent, IEventDetail, IUpdateEvent } from '../../types/event.interface';
 
 interface EventState {
     count: number | null;
@@ -85,6 +85,19 @@ export const fetchEventById = createAsyncThunk(
     }
 );
 
+// Async thunk to update an event by ID with additional parameters
+export const updateEventById = createAsyncThunk(
+    'events/updateById',
+    async ({ id, params }: { id: string; params: IUpdateEvent }, thunkAPI) => {
+        try {
+            const response = await axiosInstance.put(`/events/${id}`, params);  // Pass params with the ID in the PUT request
+            return response.data; // Assuming the API returns the updated event object
+        } catch (error: any) {
+            return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to update event');
+        }
+    }
+);
+
 const eventSlice = createSlice({
     name: 'events',
     initialState,
@@ -149,6 +162,19 @@ const eventSlice = createSlice({
                 state.selectedEvent = action.payload
             })
             .addCase(fetchEventById.rejected, (state, action) => {
+                state.loading = false;
+                state.error = typeof action.payload === 'string'
+                    ? action.payload
+                    : JSON.stringify(action.payload);
+            })
+            .addCase(updateEventById.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(updateEventById.fulfilled, (state, action) => {
+                state.loading = false;
+            })
+            .addCase(updateEventById.rejected, (state, action) => {
                 state.loading = false;
                 state.error = typeof action.payload === 'string'
                     ? action.payload

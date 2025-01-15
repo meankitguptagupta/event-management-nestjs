@@ -8,6 +8,7 @@ import {
     IsEnum,
     IsISO8601,
     IsNumber,
+    IsArray,
 } from 'class-validator';
 
 export class CreateEventDto {
@@ -51,6 +52,24 @@ export class CreateEventDto {
     @IsNumber()
     @IsOptional()
     recurrenceCount?: number;
+
+    @ApiProperty({
+        description: 'Array of tag IDs associated with the event',
+        example: [1, 2, 3], // Example array of tag IDs
+        isArray: true,
+    })
+    @IsArray()
+    @IsOptional()
+    tags?: number[];
+
+    @ApiProperty({
+        description: 'Array of attendee IDs associated with the event',
+        example: ['user-id-1', 'user-id-2', 'user-id-3'], // Example array of user IDs
+        isArray: true,
+    })
+    @IsArray()
+    @IsOptional()
+    attendees?: string[];
 }
 
 export class UpdateEventDto extends PartialType(CreateEventDto) {}

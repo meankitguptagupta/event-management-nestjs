@@ -31,3 +31,13 @@ export interface IEventDetail extends IEvent {
         managerId: null
     }
 }
+
+export interface IUpdateEvent {
+    name?: string,
+    isRecurring?: boolean,
+    recurrenceType?: string | null,
+    eventTimestamp?: string,
+    recurrenceCount?: number,
+    tags?: string[],
+    attendees?: string[]
+}

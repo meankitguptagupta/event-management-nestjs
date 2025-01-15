@@ -5,12 +5,16 @@ import { CreateEventDto, UpdateEventDto } from '../dto/event.dto';
 import { EventEntity, UserEntity } from 'src/database/entities';
 import { EntityCollection, entityMapping } from 'src/database/entity-mapping';
 import { UserRole } from 'src/utility/enum/role';
+import { In } from 'typeorm';
 
 @Injectable()
 export class EventService {
 
     private collectionName: EntityCollection =
         entityMapping.EVENT as EntityCollection;
+
+    private collectionNameUser: EntityCollection =
+        entityMapping.USER as EntityCollection;
 
     constructor(
         private readonly _repo: DatabaseService
@@ -37,7 +41,23 @@ export class EventService {
     }
 
     async getEventById(id: string): Promise<EventEntity> {
-        return this._repo.findOne<EventEntity>(this.collectionName, { where: { id }, relations: ['tags', 'attendees', 'creator'] });
+        try {
+            const eventData = await this._repo.findOne<EventEntity>(this.collectionName, { where: { id }, relations: ['creator'] });
+
+            // Populate attendees if IDs exist
+            if (eventData.attendees && eventData.attendees.length) {
+                const attendees = await this._repo.find<UserEntity>(this.collectionNameUser, {
+                    where: { id: In(eventData.attendees) },
+                });
+
+                // Attach populated attendees to a new property
+                (eventData as any).attendees = attendees;
+            }
+
+            return eventData
+        } catch (err) {
+
+        }
     }
 
     async updateEvent(id: string, params: UpdateEventDto): Promise<EventEntity> {

@@ -4,12 +4,10 @@ import { EventController } from './controllers/event.controller';
 import { TagController } from './controllers/tag.controller';
 import { EventService } from './services/event.service';
 import { TagService } from './services/tag.service';
-import { AttendeeController } from './controllers/attendee.controller';
-import { AttendeeService } from './services/attendee.service';
 
 @Module({
     imports: [DatabaseModule],
-    controllers: [EventController, TagController, AttendeeController],
-    providers: [EventService, TagService, AttendeeService]
+    controllers: [EventController, TagController],
+    providers: [EventService, TagService]
 })
 export class ApplicationModule { }

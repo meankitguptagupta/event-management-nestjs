@@ -5,12 +5,14 @@ import globalErrorReducer from './features/globalErrorSlice';
 import { errorMiddleware } from './errorMiddleware';
 import eventSlice from './features/eventSlice';
 import userSlice from './features/userSlice';
+import tagSlice from './features/tagSlice';
 
 const store = configureStore({
   reducer: {
     auth: authReducer,
     event: eventSlice,
     user: userSlice,
+    tag: tagSlice,
     globalError: globalErrorReducer,
   },
   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(errorMiddleware),

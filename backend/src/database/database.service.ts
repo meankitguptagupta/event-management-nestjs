@@ -7,7 +7,7 @@ import {
   SelectQueryBuilder,
   UpdateResult,
 } from 'typeorm';
-import { AttendeeEntity, EventEntity, TagEntity, UserEntity } from './entities';
+import { EventEntity, TagEntity, UserEntity } from './entities';
 import { EntityCollection, entityMapping } from './entity-mapping';
 
 export class DatabaseService {
@@ -29,20 +29,16 @@ export class DatabaseService {
     private readonly _event: Repository<EventEntity>,
     @InjectRepository(TagEntity)
     private readonly _tag: Repository<TagEntity>,
-    @InjectRepository(AttendeeEntity)
-    private readonly _attendee: Repository<AttendeeEntity>,
   ) {
     // Initialize the models mapping for all entities.
     this.models[entityMapping.USER] = this._user;
     this.models[entityMapping.EVENT] = this._event;
     this.models[entityMapping.TAG] = this._tag;
-    this.models[entityMapping.ATTENDEE] = this._attendee;
 
     // Initialize the entity mapping.
     this.entityMap[entityMapping.USER] = UserEntity;
     this.entityMap[entityMapping.EVENT] = EventEntity;
     this.entityMap[entityMapping.TAG] = TagEntity;
-    this.entityMap[entityMapping.ATTENDEE] = AttendeeEntity;
   }
 
   /**

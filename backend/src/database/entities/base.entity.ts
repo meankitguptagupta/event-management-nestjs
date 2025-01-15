@@ -5,9 +5,9 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-export abstract class BaseEntity {
+export abstract class BaseEntity<T = string> {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id: T; // Generic type for ID, defaulting to string
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;

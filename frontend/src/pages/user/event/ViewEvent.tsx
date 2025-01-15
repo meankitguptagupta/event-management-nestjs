@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { fetchEventById, selectEvent } from '../../../redux/features/eventSlice';
 import Moment from 'react-moment';
+import Tags from './Tags';
 
 const ViewEvent: React.FC = () => {
     const { id } = useParams<{ id: string }>(); // Get the event ID from the URL
@@ -58,6 +59,8 @@ const ViewEvent: React.FC = () => {
                 </div>
 
                 <h1>Tags</h1>
+                <Tags eventId={selectedEvent?.id} tags={selectedEvent?.tags} />
+
                 <h1>Attendees</h1>
             </div>
 
