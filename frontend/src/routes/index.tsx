@@ -12,7 +12,8 @@ const AuthLayout = lazy(() => import('../components/auth')),
     LayoutComponent = lazy(() => import('../components/layout')),
     Dashboard = lazy(() => import('../pages/user/Dashboard')),
     EventPage = lazy(() => import('../pages/user/Event')),
-    ViewEvent = lazy(() => import('../pages/user/event/ViewEvent'));
+    ViewEvent = lazy(() => import('../pages/user/event/ViewEvent')),
+    EmployeePage = lazy(() => import('../pages/user/Employee'));
 
 export const router = createBrowserRouter([
     {
@@ -46,7 +47,7 @@ export const router = createBrowserRouter([
                 element: <ViewEvent />
             }, {
                 path: "employees",
-                element: <Dashboard />
+                element: <EmployeePage />
             }, {
                 path: "profile",
                 element: <Dashboard />

@@ -4,6 +4,7 @@ import { createTag, fetchTags } from '../../../redux/features/tagSlice';
 import { tagEvent } from '../../../redux/features/tagSlice';
 import { updateEventById } from '../../../redux/features/eventSlice';  // Import the updateEventById thunk
 import { AppDispatch } from '../../../redux/store';  // Import AppDispatch
+import ConfirmModal from '../../../components/ConfirmModal.component';
 
 interface TagProps {
     eventId?: string;
@@ -13,6 +14,8 @@ interface TagProps {
 const Tags: React.FC<TagProps> = ({ eventId, tags = [] }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [localTags, setLocalTags] = useState<string[]>(tags); // Use local state to manage selected tags
+    const [showConfirmModal, setShowConfirmModal] = useState(false); // Modal visibility state
+    const [tagToRemove, setTagToRemove] = useState<string | null>(null); // The tag to remove
     const dispatch = useDispatch<AppDispatch>();  // Correctly type dispatch
     const { tags: availableTags, loading, error } = useSelector(tagEvent);
 
@@ -21,12 +24,9 @@ const Tags: React.FC<TagProps> = ({ eventId, tags = [] }) => {
 
     // Trigger fetchTags when search query changes with debouncing
     useEffect(() => {
-        // Clear previous timeout if there is one
         if (debounceTimeoutRef.current) {
             clearTimeout(debounceTimeoutRef.current);
         }
-
-        // Set new timeout to trigger the fetch after 500ms
         if (searchQuery.trim()) {
             debounceTimeoutRef.current = setTimeout(() => {
                 dispatch(fetchTags(searchQuery));
@@ -36,12 +36,10 @@ const Tags: React.FC<TagProps> = ({ eventId, tags = [] }) => {
 
     // Handle tag selection from search results
     const handleTagSelect = (tag: string) => {
-        // Only update if tag is not already in the list
         if (!localTags.includes(tag)) {
-            const updatedTags = [...localTags, tag];  // Add tag immutably
-            setLocalTags(updatedTags);  // Update the localTags state
+            const updatedTags = [...localTags, tag];
+            setLocalTags(updatedTags);
 
-            // Update the event with the new tags
             if (eventId) {
                 dispatch(updateEventById({ id: eventId, params: { tags: updatedTags } }));
             }
@@ -52,10 +50,9 @@ const Tags: React.FC<TagProps> = ({ eventId, tags = [] }) => {
     // Handle adding a custom tag or selected tag
     const handleTagAdd = (tag: string) => {
         if (tag && !localTags.includes(tag)) {
-            const updatedTags = [...localTags, tag]; // Add custom tag immutably
-            setLocalTags(updatedTags); // Update localTags state
+            const updatedTags = [...localTags, tag];
+            setLocalTags(updatedTags);
 
-            // Create the new tag and update the event with the new tags
             if (eventId) {
                 dispatch(updateEventById({ id: eventId, params: { tags: updatedTags } }));
                 dispatch(createTag({ name: tag })); // Create the new tag
@@ -64,18 +61,29 @@ const Tags: React.FC<TagProps> = ({ eventId, tags = [] }) => {
         setSearchQuery(''); // Clear input after adding tag
     };
 
-    const removeTag = (tag: string) => {
-        if (tag && localTags.includes(tag)) {
-            const updatedTags = localTags.filter(t => t !== tag); // Add custom tag immutably
-            setLocalTags(updatedTags); // Update localTags state
+    // Remove tag with confirmation
+    const handleTagRemove = () => {
+        if (tagToRemove && localTags.includes(tagToRemove)) {
+            const updatedTags = localTags.filter(t => t !== tagToRemove); // Remove the tag immutably
+            setLocalTags(updatedTags);
 
-            // Create the new tag and update the event with the new tags
             if (eventId) {
-                console.info('yes=--->', updatedTags, eventId)
                 dispatch(updateEventById({ id: eventId, params: { tags: updatedTags } }));
             }
         }
-    }
+        setShowConfirmModal(false); // Close the confirmation modal
+        setTagToRemove(null); // Reset the tag to remove
+    };
+
+    // Confirm removal action
+    const handleConfirmation = (confirmed: boolean) => {
+        if (confirmed) {
+            handleTagRemove();
+        } else {
+            setShowConfirmModal(false); // Close the modal without removing the tag
+            setTagToRemove(null); // Reset the tag to remove
+        }
+    };
 
     // Handle Enter key press to add tag
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -92,12 +100,11 @@ const Tags: React.FC<TagProps> = ({ eventId, tags = [] }) => {
                     className="form-control"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyDown={handleKeyDown} // Listen for Enter key
+                    onKeyDown={handleKeyDown}
                     placeholder="Search or add tag"
                 />
             </div>
 
-            {/* Display search results as a list */}
             {searchQuery && !loading && availableTags.length > 0 && (
                 <ul className="search-results list-group">
                     {availableTags.map((tag) => (
@@ -116,13 +123,27 @@ const Tags: React.FC<TagProps> = ({ eventId, tags = [] }) => {
                 {loading && <p>Loading...</p>}
                 {error && <p>Error: {error}</p>}
 
-                {/* Display selected tags */}
                 {localTags.map((tag, index) => (
                     <span key={index} className="badge rounded-pill text-bg-primary me-3 fs-6">
-                        {tag} <i className="fa fa-times-circle ms-2 cursor-pointer" onClick={() => removeTag(tag)} aria-hidden="true"></i>
+                        {tag}
+                        <i
+                            className="fa fa-times-circle ms-2 cursor-pointer"
+                            onClick={() => {
+                                setTagToRemove(tag);
+                                setShowConfirmModal(true);
+                            }}
+                            aria-hidden="true"
+                        ></i>
                     </span>
                 ))}
             </div>
+
+            {/* Confirmation Modal */}
+            <ConfirmModal
+                show={showConfirmModal}
+                message={`Are you sure you want to remove the tag "${tagToRemove}"?`}
+                onAction={handleConfirmation}
+            />
         </div>
     );
 };

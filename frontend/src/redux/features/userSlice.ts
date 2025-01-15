@@ -1,17 +1,20 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axiosInstance from '../../api/axios';
 import { RootState } from '../store';
+import { ISignupFormParam } from '../../types/auth.interface';
 
 interface UserState {
   employeeCount: number;
   loading: boolean;
   error: string | null;
+  employees: any[]
 }
 
 const initialState: UserState = {
   employeeCount: 0,
   loading: false,
   error: null,
+  employees: []
 };
 
 // Fetch employee count
@@ -27,15 +30,40 @@ export const fetchEmployeeCount = createAsyncThunk(
   }
 );
 
+// Async thunk to fetch the events
+export const fetchEmployee = createAsyncThunk(
+  'users/listEmployee',
+  async (_, thunkAPI) => {
+    try {
+      const response = await axiosInstance.get('/users/employees');
+      return response.data;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to fetch employee');
+    }
+  }
+);
+
+export const createEmployee = createAsyncThunk(
+  'users/addEmployee',
+  async (data: ISignupFormParam, thunkAPI) => {
+    try {
+      const response = await axiosInstance.post('/users/employees', data);
+      return response.data; // { email, role, accessToken }
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error.response?.data?.message || 'Signup failed');
+    }
+  }
+);
+
 const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
     setGlobalError: (state, action) => {
-        state.error = action.payload; // Store the error in the global state
+      state.error = action.payload; // Store the error in the global state
     },
     clearGlobalError: (state) => {
-        state.error = null; // Clear the error
+      state.error = null; // Clear the error
     },
   },
   extraReducers: (builder) => {
@@ -51,7 +79,31 @@ const userSlice = createSlice({
       .addCase(fetchEmployeeCount.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
-      });
+      })
+      .addCase(fetchEmployee.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchEmployee.fulfilled, (state, action) => {
+        state.loading = false;
+        state.employees = action.payload;
+      })
+      .addCase(fetchEmployee.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(createEmployee.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createEmployee.fulfilled, (state, action) => {
+        state.loading = false;
+        state.employees = [...state.employees, action.payload]
+      })
+      .addCase(createEmployee.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
   },
 });
 

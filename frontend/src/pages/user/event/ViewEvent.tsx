@@ -4,11 +4,15 @@ import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { fetchEventById, selectEvent } from '../../../redux/features/eventSlice';
 import Moment from 'react-moment';
 import Tags from './Tags';
+import { Attendee } from './Attendee';
 
 const ViewEvent: React.FC = () => {
     const { id } = useParams<{ id: string }>(); // Get the event ID from the URL
     const dispatch = useAppDispatch();
     const { selectedEvent, loading, error } = useAppSelector(selectEvent);
+
+    // Access the logged-in user from the Redux store
+    const user = useAppSelector((state) => state.auth.user);
 
     // Fetch event by ID on component mount
     useEffect(() => {
@@ -61,7 +65,15 @@ const ViewEvent: React.FC = () => {
                 <h1>Tags</h1>
                 <Tags eventId={selectedEvent?.id} tags={selectedEvent?.tags} />
 
-                <h1>Attendees</h1>
+                {user?.role == "manager" && (
+                    <>
+                        <hr />
+                        <h1>Attendees</h1>
+
+                        <Attendee eventId={selectedEvent?.id} attendees={selectedEvent?.attendees} />
+                    </>
+                )}
+
             </div>
 
         </div>
