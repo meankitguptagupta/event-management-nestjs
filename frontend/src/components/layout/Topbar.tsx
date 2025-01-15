@@ -51,16 +51,19 @@ export const TopbarComponent = () => {
               Events
             </NavLink>
           </li>
-          <li className="nav-item">
-            <NavLink
-              to="/employees"
-              className={({ isActive }) =>
-                `nav-link ${isActive ? 'text-white fw-bold link-under' : ''}`
-              }
-            >
-              Employees
-            </NavLink>
-          </li>
+          {
+            user?.role === 'manager' && (<li className="nav-item">
+              <NavLink
+                to="/employees"
+                className={({ isActive }) =>
+                  `nav-link ${isActive ? 'text-white fw-bold link-under' : ''}`
+                }
+              >
+                Employees
+              </NavLink>
+            </li>)
+          }
+          
           <li className="nav-item dropdown">
             <span
               className="nav-link dropdown-toggle"

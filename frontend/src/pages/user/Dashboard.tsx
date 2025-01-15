@@ -10,25 +10,33 @@ const Dashboard: React.FC = () => {
   const eventCount = useAppSelector(selectEvent);
   const userCount = useAppSelector(selectUser);
 
+  // Access the logged-in user from the Redux store
+  const user = useAppSelector((state) => state.auth.user);
+
   useEffect(() => {
+    if (user?.role === 'manager') {
+      dispatch(fetchEmployeeCount());
+    }
     dispatch(fetchEventCount());
-    dispatch(fetchEmployeeCount());
   }, [dispatch]);
 
   return (
     <div className="dashboard">
       <div className="row">
         <div className="col-sm-12 col-md-2">
-        <Card
+          <Card
             title="Events"
             value={eventCount?.count || 0}
             type="success"
           />
         </div>
 
-        <div className="col-sm-12 col-md-2">
-          <Card title="Employees" value={userCount.employeeCount || 0} type="info" />
-        </div>
+        {
+          user?.role === 'manager' && (<div className="col-sm-12 col-md-2">
+            <Card title="Employees" value={userCount.employeeCount || 0} type="info" />
+          </div>)
+        }
+
 
       </div>
 
