@@ -2,12 +2,13 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axiosInstance from '../../api/axios';
 import { RootState } from '../store';
 import { ISignupFormParam } from '../../types/auth.interface';
+import { IEmployee } from '../../types/user.interface';
 
 interface UserState {
   employeeCount: number;
   loading: boolean;
   error: string | null;
-  employees: any[]
+  employees: IEmployee[]
 }
 
 const initialState: UserState = {

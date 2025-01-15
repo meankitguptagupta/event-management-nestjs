@@ -2,27 +2,25 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { createTag, fetchTags } from '../../../redux/features/tagSlice';
 import { tagEvent } from '../../../redux/features/tagSlice';
-import { updateEventById } from '../../../redux/features/eventSlice';  // Import the updateEventById thunk
-import { AppDispatch } from '../../../redux/store';  // Import AppDispatch
 import ConfirmModal from '../../../components/ConfirmModal.component';
+import { AppDispatch } from '../../../redux/store';
 
 interface TagProps {
     eventId?: string;
-    tags?: string[];
+    tags: string[]; // Tags are now managed in the parent
+    onUpdateTags: (updatedTags: string[]) => void; // Callback to update tags in the parent
 }
 
-const Tags: React.FC<TagProps> = ({ eventId, tags = [] }) => {
+const Tags: React.FC<TagProps> = ({ eventId, tags, onUpdateTags }) => {
     const [searchQuery, setSearchQuery] = useState('');
-    const [localTags, setLocalTags] = useState<string[]>(tags); // Use local state to manage selected tags
-    const [showConfirmModal, setShowConfirmModal] = useState(false); // Modal visibility state
-    const [tagToRemove, setTagToRemove] = useState<string | null>(null); // The tag to remove
-    const dispatch = useDispatch<AppDispatch>();  // Correctly type dispatch
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [tagToRemove, setTagToRemove] = useState<string | null>(null);
+    const dispatch = useDispatch<AppDispatch>();
     const { tags: availableTags, loading, error } = useSelector(tagEvent);
 
-    // Using useRef to store the debounce timeout ID to clear it when necessary
     const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-    // Trigger fetchTags when search query changes with debouncing
+    // Fetch matching tags as the user types (debounced)
     useEffect(() => {
         if (debounceTimeoutRef.current) {
             clearTimeout(debounceTimeoutRef.current);
@@ -30,70 +28,45 @@ const Tags: React.FC<TagProps> = ({ eventId, tags = [] }) => {
         if (searchQuery.trim()) {
             debounceTimeoutRef.current = setTimeout(() => {
                 dispatch(fetchTags(searchQuery));
-            }, 500); // 500ms delay
+            }, 500); // 500ms debounce delay
         }
     }, [searchQuery, dispatch]);
 
-    // Handle tag selection from search results
-    const handleTagSelect = (tag: string) => {
-        if (!localTags.includes(tag)) {
-            const updatedTags = [...localTags, tag];
-            setLocalTags(updatedTags);
-
-            if (eventId) {
-                dispatch(updateEventById({ id: eventId, params: { tags: updatedTags } }));
-            }
-        }
-        setSearchQuery(''); // Clear input field
-    };
-
-    // Handle adding a custom tag or selected tag
+    // Handle adding a tag (from search results or custom input)
     const handleTagAdd = (tag: string) => {
-        if (tag && !localTags.includes(tag)) {
-            const updatedTags = [...localTags, tag];
-            setLocalTags(updatedTags);
-
-            if (eventId) {
-                dispatch(updateEventById({ id: eventId, params: { tags: updatedTags } }));
-                dispatch(createTag({ name: tag })); // Create the new tag
-            }
+        if (!tags.includes(tag)) {
+            const updatedTags = [...tags, tag];
+            onUpdateTags(updatedTags); // Notify the parent
+            dispatch(createTag({ name: tag })); // Optional: Save new tag in the database
         }
-        setSearchQuery(''); // Clear input after adding tag
+        setSearchQuery(''); // Clear the search query
     };
 
-    // Remove tag with confirmation
+    // Handle selecting a tag from the search results
+    const handleTagSelect = (tag: string) => {
+        handleTagAdd(tag); // Reuse the same logic for adding tags
+    };
+
+    // Handle removing a tag (with confirmation)
     const handleTagRemove = () => {
-        if (tagToRemove && localTags.includes(tagToRemove)) {
-            const updatedTags = localTags.filter(t => t !== tagToRemove); // Remove the tag immutably
-            setLocalTags(updatedTags);
-
-            if (eventId) {
-                dispatch(updateEventById({ id: eventId, params: { tags: updatedTags } }));
-            }
-        }
-        setShowConfirmModal(false); // Close the confirmation modal
-        setTagToRemove(null); // Reset the tag to remove
-    };
-
-    // Confirm removal action
-    const handleConfirmation = (confirmed: boolean) => {
-        if (confirmed) {
-            handleTagRemove();
-        } else {
-            setShowConfirmModal(false); // Close the modal without removing the tag
-            setTagToRemove(null); // Reset the tag to remove
+        if (tagToRemove) {
+            const updatedTags = tags.filter((t) => t !== tagToRemove);
+            onUpdateTags(updatedTags); // Notify the parent
+            setShowConfirmModal(false); // Close the modal
+            setTagToRemove(null); // Reset the state
         }
     };
 
-    // Handle Enter key press to add tag
+    // Handle Enter key press in the input field
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter' && searchQuery.trim()) {
-            handleTagAdd(searchQuery); // Add tag when Enter is pressed
+            handleTagAdd(searchQuery); // Add the tag on Enter
         }
     };
 
     return (
         <div className="tag">
+            {/* Input for searching or adding tags */}
             <div className="tag-search">
                 <input
                     type="text"
@@ -105,12 +78,13 @@ const Tags: React.FC<TagProps> = ({ eventId, tags = [] }) => {
                 />
             </div>
 
+            {/* Display search results */}
             {searchQuery && !loading && availableTags.length > 0 && (
                 <ul className="search-results list-group">
                     {availableTags.map((tag) => (
                         <li
                             key={tag.id}
-                            className="search-result-item list-group-item"
+                            className="search-result-item list-group-item list-group-item-action"
                             onClick={() => handleTagSelect(tag.name)}
                         >
                             {tag.name}
@@ -119,11 +93,11 @@ const Tags: React.FC<TagProps> = ({ eventId, tags = [] }) => {
                 </ul>
             )}
 
+            {/* Display selected tags */}
             <div className="tag-list my-2">
                 {loading && <p>Loading...</p>}
                 {error && <p>Error: {error}</p>}
-
-                {localTags.map((tag, index) => (
+                {tags.map((tag, index) => (
                     <span key={index} className="badge rounded-pill text-bg-primary me-3 fs-6">
                         {tag}
                         <i
@@ -142,7 +116,10 @@ const Tags: React.FC<TagProps> = ({ eventId, tags = [] }) => {
             <ConfirmModal
                 show={showConfirmModal}
                 message={`Are you sure you want to remove the tag "${tagToRemove}"?`}
-                onAction={handleConfirmation}
+                onAction={(confirmed) => {
+                    if (confirmed) handleTagRemove();
+                    else setShowConfirmModal(false);
+                }}
             />
         </div>
     );

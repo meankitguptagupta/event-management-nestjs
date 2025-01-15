@@ -4,7 +4,7 @@
         "label": "Email",
         "type": "text",
         "placeholder": "Enter your email",
-        "value": "test@example.com",
+        "value": "",
         "validations": [
             {
                 "required": true,
@@ -22,7 +22,7 @@
         "label": "Password",
         "type": "password",
         "placeholder": "Enter your password",
-        "value": "password",
+        "value": "",
         "validations": [
             {
                 "required": true

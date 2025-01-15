@@ -42,19 +42,7 @@ export class EventService {
 
     async getEventById(id: string): Promise<EventEntity> {
         try {
-            const eventData = await this._repo.findOne<EventEntity>(this.collectionName, { where: { id }, relations: ['creator'] });
-
-            // Populate attendees if IDs exist
-            if (eventData.attendees && eventData.attendees.length) {
-                const attendees = await this._repo.find<UserEntity>(this.collectionNameUser, {
-                    where: { id: In(eventData.attendees) },
-                });
-
-                // Attach populated attendees to a new property
-                (eventData as any).attendees = attendees;
-            }
-
-            return eventData
+            return await this._repo.findOne<EventEntity>(this.collectionName, { where: { id }, relations: ['creator'] });
         } catch (err) {
 
         }
